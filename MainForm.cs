@@ -16,8 +16,8 @@ internal sealed class MainForm : Form
     private static readonly Color Canvas = Color.FromArgb(237, 242, 246);
 
     private readonly ComboBox drives = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 260 };
-    private readonly Button scan = new() { Text = "&Scannen", AutoSize = true };
-    private readonly Button cancel = new() { Text = "&Stoppen", AutoSize = true, Enabled = false };
+    private readonly Button scan = new() { Text = "&Scan", AutoSize = true };
+    private readonly Button cancel = new() { Text = "S&top", AutoSize = true, Enabled = false };
     private readonly DirectoryGrid tree = new();
     private readonly Label emptyTree = new() { TextAlign = ContentAlignment.MiddleCenter, ForeColor = Muted };
     private readonly Label status = new() { AutoEllipsis = true, ForeColor = Muted, TextAlign = ContentAlignment.MiddleLeft };
@@ -78,7 +78,7 @@ internal sealed class MainForm : Form
         });
         header.Controls.Add(new Label
         {
-            Text = "Schijfruimte per map en bestand", ForeColor = Color.FromArgb(193, 218, 225),
+            Text = "Disk usage by folder and file", ForeColor = Color.FromArgb(193, 218, 225),
             AutoSize = true, Location = new Point(24, 57)
         });
         layout.Controls.Add(header, 0, 0);
@@ -87,10 +87,10 @@ internal sealed class MainForm : Form
         {
             Dock = DockStyle.Fill, Margin = Padding.Empty, Padding = new Padding(20, 12, 20, 0), WrapContents = false
         };
-        var driveLabel = new Label { Text = "&Locatie", AutoSize = true, Margin = new Padding(0, 8, 9, 0) };
-        var refresh = new Button { Text = "&Vernieuwen", AutoSize = true };
+        var driveLabel = new Label { Text = "&Location", AutoSize = true, Margin = new Padding(0, 8, 9, 0) };
+        var refresh = new Button { Text = "&Refresh", AutoSize = true };
         refresh.Click += (_, _) => RefreshDrives();
-        drives.AccessibleName = "Beschikbare scanlocaties";
+        drives.AccessibleName = "Available scan locations";
         drives.Margin = new Padding(0, 5, 10, 0);
         StyleButton(scan, primary: true);
         StyleButton(cancel, primary: false);
@@ -115,7 +115,7 @@ internal sealed class MainForm : Form
         footer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         footer.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         status.Dock = DockStyle.Fill;
-        status.AccessibleName = "Scanstatus";
+        status.AccessibleName = "Scan status";
         activity.Anchor = AnchorStyles.Right;
         activity.Size = new Size(105, 8);
         footer.Controls.Add(status, 0, 0);
@@ -136,7 +136,7 @@ internal sealed class MainForm : Form
     private void RefreshDrives()
     {
         string? previous = drives.SelectedItem as string;
-        string? driveError = null;
+        bool driveError = false;
         try
         {
             var names = DriveInfo.GetDrives().Select(drive => drive.Name).ToArray();
@@ -145,7 +145,7 @@ internal sealed class MainForm : Form
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or System.Security.SecurityException)
         {
-            driveError = error.Message;
+            driveError = true;
         }
 
         if (launchPath is not null && drives.FindStringExact(launchPath) < 0)
@@ -157,9 +157,9 @@ internal sealed class MainForm : Form
             return;
 
         bool hasLocations = drives.Items.Count > 0;
-        SetEmpty(hasLocations ? "Kies een locatie om de mappenboom te bekijken." : "Er zijn geen schijven beschikbaar.");
-        status.Text = driveError is not null ? $"Schijven ophalen is mislukt. {driveError}"
-            : hasLocations ? "Grootste items verschijnen bovenaan." : "Sluit een schijf aan en klik op Vernieuwen.";
+        SetEmpty(hasLocations ? "Choose a location to view its folder tree." : "No drives are available.");
+        status.Text = driveError ? "Could not list drives. Click Refresh to try again."
+            : hasLocations ? "Largest items appear first." : "Connect a drive, then click Refresh.";
     }
 
     private async Task ScanSelectedDrive()
@@ -180,14 +180,14 @@ internal sealed class MainForm : Form
         using var request = new CancellationTokenSource();
         activeScan = request;
         tree.ClearItems();
-        SetEmpty($"Locatie {rootPath} wordt gescand…");
-        status.Text = $"Scannen · {rootPath}";
+        SetEmpty($"Scanning {rootPath}…");
+        status.Text = $"Scanning · {rootPath}";
         cancel.Enabled = activity.Visible = true;
 
         var progress = new Progress<string>(path =>
         {
             if (!closing && activeScan == request && !request.IsCancellationRequested)
-                status.Text = $"Scannen · {path}";
+                status.Text = $"Scanning · {path}";
         });
 
         try
@@ -199,7 +199,7 @@ internal sealed class MainForm : Form
             request.Token.ThrowIfCancellationRequested();
             if (result.Root.Children!.Count == 0 && result.Unreadable > 0)
             {
-                SetEmpty($"Locatie {rootPath} kon niet worden gelezen.");
+                SetEmpty($"Could not read {rootPath}.");
                 status.Text = ResultStatus(result);
                 return;
             }
@@ -214,16 +214,16 @@ internal sealed class MainForm : Form
         {
             if (!closing && activeScan == request)
             {
-                SetEmpty("De scan is gestopt.");
-                status.Text = "Kies een locatie of klik op Scannen om opnieuw te beginnen.";
+                SetEmpty("Scan stopped.");
+                status.Text = "Choose a location or click Scan to start again.";
             }
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or System.Security.SecurityException or ArgumentException)
         {
             if (!closing && activeScan == request)
             {
-                SetEmpty("De scan is mislukt.");
-                status.Text = error.Message;
+                SetEmpty("The scan could not be completed.");
+                status.Text = $"Check that {rootPath} is available and try again.";
             }
         }
         finally
@@ -241,7 +241,7 @@ internal sealed class MainForm : Form
     {
         activeScan?.Cancel();
         cancel.Enabled = false;
-        status.Text = "Scan wordt gestopt…";
+        status.Text = "Stopping scan…";
     }
 
     private void SetEmpty(string message)
@@ -254,7 +254,7 @@ internal sealed class MainForm : Form
     private static string ResultStatus(ScanResult result)
     {
         if (result.Root.Incomplete)
-            return $"Overgeslagen · {result.Unreadable:N0} onleesbaar, {result.LinksSkipped:N0} speciale bestandssysteemitems. * = onvolledig";
-        return $"Scan voltooid · {result.Root.DirectoryCount:N0} mappen · {result.Root.FileCount:N0} bestanden";
+            return $"Skipped · {result.Unreadable:N0} unreadable, {result.LinksSkipped:N0} special file system entries. * = incomplete";
+        return $"Scan complete · {result.Root.DirectoryCount:N0} folders · {result.Root.FileCount:N0} files";
     }
 }

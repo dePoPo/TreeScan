@@ -1,30 +1,34 @@
 # TreeScan
 
-TreeScan is een Nederlandstalige Windows-app in C# die laat zien welke mappen en bestanden de meeste ruimte innemen.
+TreeScan is a Windows app written in C# that shows which folders and files take up the most disk space.
 
-**Supervised AI project.** TreeScan is gemaakt met Codex, onder menselijke begeleiding.
+**Supervised AI project.** TreeScan was built with Codex under human supervision.
 
-- Bekijk een uitklapbare boom, met de grootste items bovenaan.
-- Zie per rij de grootte, het aantal bestanden en het aandeel in de totale scan.
-- Open de bijbehorende locatie vanuit TreeScan in Windows Verkenner.
+- Explore an expandable tree with the largest items first.
+- See the size, file count, and share of the total scan in each row.
+- Open a folder or locate a file in Windows File Explorer from TreeScan.
 
-## Installeren en gebruiken
+![TreeScan showing a scanned drive with folder sizes, file counts, and percentage bars](docs/treescan-screenshot.png)
 
-1. Download de Windows x64-installer (`.msi`) bij de releases van dit project en voer die uit. TreeScan wordt geïnstalleerd voor de huidige Windows-gebruiker.
-2. Rechtsklik in Verkenner op een schijf of map en kies **Scannen met TreeScan**. Op Windows 11 staat de optie in het klassieke menu onder **Meer opties weergeven**.
-3. Je kunt TreeScan ook openen via Start en daar een schijf kiezen.
+*Screenshot from version 1.0.0, which used the Dutch interface.*
 
-TreeScan vereist Windows x64 met .NET Framework 4.8 of nieuwer. Een `*` in de boom geeft aan dat onderdelen zijn overgeslagen, bijvoorbeeld door ontbrekende leesrechten of doordat het om een bestandssysteemkoppeling gaat. De getoonde totalen kunnen daardoor lager zijn.
+## Install and use
 
-Verwijder TreeScan via **Instellingen → Apps → Geïnstalleerde apps**. Windows Installer ruimt ook de Verkenner-menuopties op.
+1. Download and run the Windows x64 installer (`.msi`) from this project's releases. It installs TreeScan for your Windows account and automatically upgrades an earlier MSI installation for that account.
+2. Right-click a drive or folder in File Explorer and choose **Scan with TreeScan**. On Windows 11, look under **Show more options**.
+3. You can also launch TreeScan from the Start menu and select a drive.
 
-## Zelf bouwen
+TreeScan requires x64 Windows with .NET Framework 4.8 or later. An asterisk (`*`) in the tree marks an incomplete total. TreeScan may skip locations it cannot read and file system links.
 
-Gebruik PowerShell op Windows met de .NET SDK 9 en het .NET Framework 4.8 Developer Pack.
+To uninstall TreeScan and remove its File Explorer menu entries, go to **Settings → Apps → Installed apps**.
+
+## Build from source
+
+Use PowerShell on Windows with the .NET 9 SDK and the .NET Framework 4.8 Developer Pack.
 
 ```powershell
 dotnet build -c Release
 ./installer/Build-Msi.ps1
 ```
 
-De executable staat in `bin/Release/net48/`. Het installatiescript gebruikt WiX 6.0.2 en schrijft de MSI naar `bin/installer/`.
+The executable is in `bin/Release/net48/`. The installer build script uses WiX 6.0.2 and writes the MSI to `bin/installer/`.

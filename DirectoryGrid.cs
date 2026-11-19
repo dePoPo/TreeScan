@@ -48,17 +48,17 @@ internal sealed class DirectoryGrid : DataGridView
         AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
         RowTemplate.Height = 29;
         DoubleBuffered = true;
-        AccessibleName = "Uitklapbare mappenboom, grootste items eerst";
+        AccessibleName = "Expandable folder tree, largest items first";
 
-        var name = Column("Map of bestand", 155);
+        var name = Column("Folder or file", 155);
         name.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
         name.MinimumWidth = 155;
         Columns.Add(name);
-        Columns.Add(Column("Grootte", 106, alignRight: true));
-        Columns.Add(Column("Bestanden", 100, alignRight: true));
-        Columns.Add(Column("% van totaal", 150));
+        Columns.Add(Column("Size", 106, alignRight: true));
+        Columns.Add(Column("Files", 100, alignRight: true));
+        Columns.Add(Column("% of total", 150));
 
-        itemMenu.Items.Add("Openen in &Verkenner", null, (_, _) => OpenSelectedItem());
+        itemMenu.Items.Add("Open in File &Explorer", null, (_, _) => OpenSelectedItem());
     }
 
     private Item? SelectedItem
@@ -135,7 +135,7 @@ internal sealed class DirectoryGrid : DataGridView
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or Win32Exception
             or COMException or ArgumentException or System.Security.SecurityException)
         {
-            MessageBox.Show(this, $"Deze locatie kan niet worden geopend in Verkenner.\r\n\r\n{path}",
+            MessageBox.Show(this, $"This location could not be opened in File Explorer.\r\n\r\n{path}",
                 "TreeScan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
@@ -469,7 +469,7 @@ internal sealed class DirectoryGrid : DataGridView
             Entry = entry;
             Parent = parent;
             Depth = parent is null ? 0 : parent.Depth + 1;
-            Name = entry is null ? $"Meer weergeven ({remaining:N0})"
+            Name = entry is null ? $"Show more ({remaining:N0})"
                 : entry.Incomplete ? $"{entry.Name} *" : entry.Name;
         }
 

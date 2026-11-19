@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 
@@ -9,6 +10,7 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
+        CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.GetCultureInfo("en-US");
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
 
@@ -24,7 +26,7 @@ internal static class Program
             catch (Exception error) when (error is ArgumentException or IOException
                 or NotSupportedException or UnauthorizedAccessException or System.Security.SecurityException)
             {
-                MessageBox.Show("Geef een geldig volledig mappad op met --scan.", "TreeScan",
+                MessageBox.Show("Supply a valid absolute folder path with --scan.", "TreeScan",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }

@@ -8,15 +8,15 @@ $wix = Join-Path $toolPath 'wix.exe'
 
 if (-not (Test-Path -LiteralPath $wix)) {
     dotnet tool install wix --version $wixVersion --tool-path $toolPath
-    if ($LASTEXITCODE -ne 0) { throw 'WiX installeren is mislukt.' }
+    if ($LASTEXITCODE -ne 0) { throw 'Could not install WiX.' }
 }
 
 dotnet build $project -c Release --nologo
-if ($LASTEXITCODE -ne 0) { throw 'TreeScan bouwen is mislukt.' }
+if ($LASTEXITCODE -ne 0) { throw 'Could not build TreeScan.' }
 
 $app = Join-Path $projectRoot 'bin/Release/net48/TreeScan.exe'
 $output = Join-Path $projectRoot "bin/installer/TreeScan-$version-x64.msi"
 New-Item -ItemType Directory -Path (Split-Path -Parent $output) -Force | Out-Null
 & $wix build (Join-Path $PSScriptRoot 'TreeScan.wxs') -arch x64 -d "AppPath=$app" -d "AppVersion=$version" -o $output
-if ($LASTEXITCODE -ne 0) { throw 'De MSI bouwen is mislukt.' }
+if ($LASTEXITCODE -ne 0) { throw 'Could not build the MSI.' }
 Write-Output $output

@@ -1,11 +1,11 @@
-# Werken aan TreeScan
+# Working on TreeScan
 
-TreeScan heeft twee Git-repositories. In de interne werkmap blijft GitLab de remote `origin`. De aparte werkmap `../TreeScan-public` gebruikt de remote `github` voor `dePoPo/TreeScan`. Beide gebruiken de branch `master`.
+TreeScan has two Git repositories. The internal working copy uses GitLab as its `origin` remote. The separate `../TreeScan-public` working copy uses the `github` remote for `dePoPo/TreeScan`. Both use the `master` branch.
 
-## Commits en pushes
+## Commits and pushes
 
-- Leg bij een commit dezelfde publieke wijzigingen vast in beide werkmappen. Maak in de publieke werkmap een eigen commit op de bestaande publieke geschiedenis.
-- Push bij een pushopdracht beide werkmappen. Gebruik intern `git push origin master` en vanuit de publieke werkmap `git push github master`. Verifieer dat beide remotes de bedoelde commits hebben ontvangen.
-- Controleer vóór iedere publieke commit welke bestanden en metadata openbaar worden. Houd interne URLs, referenties, geheimen en lokale buildbestanden buiten de publieke kopie. Vraag bij twijfel of een wijziging openbaar mag worden.
-- Houd de twee geschiedenissen gescheiden. Voeg de publieke remote alleen toe aan de publieke werkmap. Gebruik geen force-push of mirror-push om verschillen op te lossen.
-- Laat de gebruiker het weten als een commit of push naar een van beide repositories is geblokkeerd, bijvoorbeeld door een aanmelding die nodig is.
+- Commit the same public changes in both working copies. Make a separate commit on the existing public history in the public working copy.
+- When asked to push, push both working copies. Use `git push origin master` internally and `git push github master` from the public working copy. Verify that both remotes received the intended commits.
+- Review the files and metadata before every public commit. Keep internal URLs, references, secrets, and local build outputs out of the public copy. Ask if it is unclear whether a change may be shared publicly.
+- Keep the two histories separate. Add the public remote only to the public working copy. Resolve differences without force-pushing or mirror-pushing.
+- Tell the user if a commit or push to either repository is blocked, for example when sign-in is required.
