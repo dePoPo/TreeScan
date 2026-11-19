@@ -1,0 +1,37 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="TreeScan" Manufacturer="TreeScan" Version="$(var.AppVersion)"
+           UpgradeCode="D087A37E-13A1-4318-976D-1FDBFF87BF91" Scope="perUser" Language="1043">
+    <MajorUpgrade DowngradeErrorMessage="Er is al een nieuwere versie van TreeScan geïnstalleerd." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="INSTALLFOLDER" Name="TreeScan">
+        <Component Id="TreeScanApplication" Guid="5430E6C1-0ED8-4230-9284-524113095F23">
+          <File Id="TreeScanExe" Source="$(var.AppPath)" />
+          <Shortcut Id="TreeScanStartMenu" Directory="ProgramMenuFolder" Name="TreeScan"
+                    Target="[#TreeScanExe]" WorkingDirectory="INSTALLFOLDER" />
+          <RemoveFolder Id="RemoveTreeScanFolder" On="uninstall" />
+          <RegistryValue Root="HKCU" Key="Software\TreeScan" Name="Installed" Type="integer" Value="1" KeyPath="yes" />
+
+          <!-- The dot keeps a drive root's trailing backslash away from the closing quote. -->
+          <RegistryKey Root="HKCU" Key="Software\Classes\Directory\shell\TreeScan" ForceDeleteOnUninstall="yes">
+            <RegistryValue Name="MUIVerb" Type="string" Value="Scannen met TreeScan" />
+            <RegistryKey Key="command">
+              <RegistryValue Type="string" Value="&quot;[#TreeScanExe]&quot; --scan &quot;%1\.&quot;" />
+            </RegistryKey>
+          </RegistryKey>
+          <RegistryKey Root="HKCU" Key="Software\Classes\Drive\shell\TreeScan" ForceDeleteOnUninstall="yes">
+            <RegistryValue Name="MUIVerb" Type="string" Value="Scannen met TreeScan" />
+            <RegistryKey Key="command">
+              <RegistryValue Type="string" Value="&quot;[#TreeScanExe]&quot; --scan &quot;%1\.&quot;" />
+            </RegistryKey>
+          </RegistryKey>
+        </Component>
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder" />
+    <Feature Id="TreeScan" Title="TreeScan" Level="1">
+      <ComponentRef Id="TreeScanApplication" />
+    </Feature>
+  </Package>
+</Wix>
